@@ -1,0 +1,92 @@
+if (!phone || !password) {
+                alert("Please fill in all fields!");
+                return;
+            }
+
+            if (phone === dbUserPhone && password === dbUserPassword) {
+                document.getElementById('profile-name').innerText = dbUserNickname;
+                document.getElementById('profile-phone').innerText = "Phone: " + phone;
+
+                updateAllBalanceDisplays();
+                switchMainPage('page-home');
+                document.getElementById('global-nav').style.display = 'flex';
+                document.getElementById('nav-home').classList.add('active');
+            } else {
+                alert("Incorrect Phone Number or Password! Please check your spelling.");
+            }
+        }
+
+        // 💳 CHAPA REDIRECT ሎጂክ (የበለጠ አስተማማኝ አሰራር)
+        function redirectToChapa() {
+            const amount = parseFloat(document.getElementById('recharge-input').value);
+            if (!amount || amount <= 0) {
+                alert("Please enter a valid amount!");
+                return;
+            }
+
+            // ያንተን የChapa Public Key እዚህ አስገባ
+            const chapaPublicKey = "YOUR_CHAPA_PUBLIC_KEY"; 
+            const txRef = "MCD-VIP-" + Math.floor(Math.random() * 10000000);
+
+            // Chapa ይፋዊ Hosted Payment ገጽ መፍጠሪያ ሊንክ መዋቅር
+            const chapaUrl = "https://checkout.chapa.co/checkout/web/payment/" + txRef;
+
+            alert("ወደ Chapa ይፋዊ የክፍያ ገጽ በመዛወር ላይ ነዎት። ክፍያውን ከፈጸሙ በኋላ ባላንስዎ ላይ በራሱ ይጻፋል!");
+            
+            // የሙከራ ሲsimulation (Frontend ላይ በቀጥታ እንዲጨምር)
+            currentUserBalance += amount;
+            totalRechargedAmount += amount;
+            updateAllBalanceDisplays();
+
+            // ደንበኛውን ወደ Chapa ለመውሰድ (ሊንኩን ለመክፈት)
+            // window.location.href = chapaUrl; 
+            
+            backToHome();
+        }
+
+        // STABLE ምርቶችን የመግዣ ሎጂክ
+        function processProductPurchase(price, dailyIncome, days, productName, unlocksVip) {
+            if (currentUserBalance >= price) {
+                currentUserBalance -= price; 
+                totalOrdersCount += 1; 
+                let calculatedIncome = dailyIncome * days;
+                totalIncomeEarned += calculatedIncome;
+
+                // ቢያንስ የ500 ብሩን ምርት ከገዛ VIP Level 1 ይከፈታል
+                if (unlocksVip) {
+                    currentUserVipLevel = 1;
+                    alert("በአስተማማኝ ሁኔታ " + productName + " ገዝተዋል። በተሳካ ሁኔታ ኢንቨስት ተደርጓል! ልዩ ማሳሰቢያ፡ VIP Level 1 አሁን ተከፍቶልሃል! 🎉");
+                } else {
+                    alert("በአስተማማኝ ሁኔታ " + productName + " ገዝተዋል። በተሳካ ሁኔታ ኢንቨስት ተደርጓል!");
+                }
+
+                updateAllBalanceDisplays(); 
+            } else {
+                alert("ያለዎት ቀሪ ሂሳብ አነስተኛ ነው! እባክዎ መጀመሪያ አካውንትዎን ይሙሉ።");
+            }
+        }
+
+        // VIP ምርቶችን የመግዣ ሎጂክ (ከመቆለፊያ ጋር)
+        function processVipPurchase(price, dailyIncome, days, productName) {
+            if (currentUserVipLevel < 1) {
+                alert("❌ ስህተት፡ የVIP ምርቶችን ለመግዛት መጀመሪያ የ 500 ETB (McDonald's Share 1) መግዛት አለብዎት!");
+                return;
+            }
+
+            if (currentUserBalance >= price) {
+                currentUserBalance -= price; 
+                totalOrdersCount += 1; 
+                let calculatedIncome = dailyIncome * days;
+                totalIncomeEarned += calculatedIncome;
+
+                updateAllBalanceDisplays(); 
+                alert("በአስተማማኝ ሁኔታ የVIP ምርት " + productName + " ገዝተዋል።");
+            } else {
+                alert("ያለዎት ቀሪ ሂሳብ አነስተኛ ነው! እባክዎ መጀመሪያ አካውንትዎን ይሙሉ።");
+            }
+        }
+
+        // የገጽታና ታብ አሰሳ መቆጣጠሪያዎች
+        function switchTab(tabName) {
+            document.getElementById('tab-btn-stable').classList.remove('active');
+            document.getElementById('tab-btn-vip').classList.remove('active');
