@@ -1,0 +1,66 @@
+document.getElementById('tab-btn-activity').classList.remove('active');
+            document.getElementById('tab-content-stable').classList.remove('active');
+            document.getElementById('tab-content-vip').classList.remove('active');
+            document.getElementById('tab-content-activity').classList.remove('active');
+            
+            document.getElementById('tab-btn-' + tabName).classList.add('active');
+            document.getElementById('tab-content-' + tabName).classList.add('active');
+        }
+
+        function changeTab(tabName) {
+            document.getElementById('nav-home').classList.remove('active');
+            document.getElementById('nav-profile').classList.remove('active');
+            
+            if(tabName === 'home') {
+                switchMainPage('page-home');
+                document.getElementById('nav-home').classList.add('active');
+            } else if(tabName === 'profile') {
+                switchMainPage('page-profile');
+                document.getElementById('nav-profile').classList.add('active');
+            }
+            updateAllBalanceDisplays();
+        }
+
+        function navigateTo(pageId) {
+            switchMainPage(pageId);
+            document.getElementById('global-nav').style.display = 'none';
+            updateAllBalanceDisplays();
+        }
+
+        function backToHome() {
+            switchMainPage('page-home');
+            document.getElementById('global-nav').style.display = 'flex';
+            document.getElementById('nav-home').classList.add('active');
+            updateAllBalanceDisplays();
+        }
+
+        function setRecharge(amount) {
+            document.getElementById('recharge-input').value = amount;
+        }
+
+        function checkWithdrawalLimits() {
+            const amt = parseFloat(document.getElementById('withdraw-amount').value);
+            const bank = document.getElementById('withdraw-bank-select').value;
+
+            if(isNaN(amt)  amt < 300  amt > 50000) {
+                alert("Error! Withdrawal must be between 300 ETB and 50,000 ETB.");
+                return;
+            } 
+            if(bank === "") {
+                alert("Please choose a payment method!");
+                return;
+            }
+
+            if (currentUserBalance >= amt) {
+                currentUserBalance -= amt;
+                totalWithdrawnAmount += amt; 
+                updateAllBalanceDisplays();
+                alert("Withdrawal Request Submitted Successfully!");
+                backToHome();
+            } else {
+                alert("Error! Insufficient balance for this withdrawal.");
+            }
+        }
+    </script>
+</body>
+</html>
